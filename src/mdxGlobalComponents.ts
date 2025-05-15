@@ -17,6 +17,7 @@ import { ProductScreenshot } from './components/ProductScreenshot'
 import { ProductVideo } from './components/ProductVideo'
 import { StarRepoButton } from './components/StarRepoButton'
 import { CalloutBox } from './components/Docs/CalloutBox'
+import CodeReference from './components/CodeReference/CodeReference'
 
 export const shortcodes = {
     ArrayCTA,
@@ -38,4 +39,5 @@ export const shortcodes = {
     ProductVideo,
     StarRepoButton,
     CalloutBox,
+    CodeReference,
 }

@@ -38,9 +38,9 @@ type SingleCodeBlockProps = {
     showLabel?: boolean
     showLineNumbers?: boolean
     showCopy?: boolean
-
     language: string
     children: string
+    highlightLines?: number[]
 }
 
 type MdxCodeBlock = {
@@ -116,14 +116,14 @@ export const MdxCodeBlock = ({ children, ...props }: MdxCodeBlock) => {
     )
 }
 
-export const SingleCodeBlock = ({ label, language, children, ...props }: SingleCodeBlockProps) => {
+export const SingleCodeBlock = ({ label, language, children, highlightLines = [], ...props }: SingleCodeBlockProps) => {
     const currentLanguage = {
         language,
         code: children,
     }
 
     return (
-        <CodeBlock label={label} currentLanguage={currentLanguage} {...props}>
+        <CodeBlock label={label} currentLanguage={currentLanguage} {...props} highlightLines={highlightLines}>
             {[currentLanguage]}
         </CodeBlock>
     )
@@ -146,7 +146,8 @@ export const CodeBlock = ({
     onChange,
     lineNumberStart = 1,
     tooltips,
-}: CodeBlockProps) => {
+    highlightLines = [],
+}: CodeBlockProps & { highlightLines?: number[] }) => {
     if (languages.length < 0 || !currentLanguage) {
         return null
     }
@@ -164,6 +165,7 @@ export const CodeBlock = ({
     const displayName = label || languageMap[currentLanguage.language]?.label || currentLanguage.language
 
     const { websiteTheme } = useValues(layoutLogic)
+    const highlightColor = websiteTheme === 'dark' ? 'bg-blue-400/[.2]' : 'bg-blue-400/[.1]'
 
     React.useEffect(() => {
         // Browser check - no cookies on the server
@@ -363,7 +365,13 @@ export const CodeBlock = ({
                                             ?.content.replace(tooltipKey, '')
                                     const firstContentIndex = line.findIndex((token) => !!token.content.trim())
                                     return (
-                                        <div key={i} className={`${className} relative`} {...props}>
+                                        <div
+                                            key={i}
+                                            className={`${className} relative ${
+                                                highlightLines.includes(i + lineNumberStart) ? highlightColor : ''
+                                            }`}
+                                            {...props}
+                                        >
                                             {line
                                                 .filter((token) => !token.content.startsWith(tooltipKey))
                                                 .map((token, key) => {

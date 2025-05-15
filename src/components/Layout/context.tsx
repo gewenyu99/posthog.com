@@ -54,11 +54,11 @@ export const LayoutProvider = ({ children, ...other }: IProps) => {
         return hedgehogModeLocalStorage
     }, [])
 
-
     const [hedgehogModeEnabled, _setHedgehogModeEnabled] = useState<boolean>(hedgehogModeLocalStorage === 'true')
     const [enterpriseMode, setEnterpriseMode] = useState(false)
     const [theoMode, setTheoMode] = useState(false)
     const [post, setPost] = useState<boolean>(false)
+    const [explainerTutorial, setExplainerTutorial] = useState<boolean>(false)
     const parent =
         other.parent ??
         menu.find(({ children, url }) => {
@@ -78,7 +78,6 @@ export const LayoutProvider = ({ children, ...other }: IProps) => {
     useEffect(() => {
         localStorage.setItem('full-width-content', fullWidthContent + '')
     }, [fullWidthContent])
-
 
     const setHedgehogModeEnabled = (enabled: boolean) => {
         _setHedgehogModeEnabled(enabled)
@@ -192,6 +191,8 @@ export const LayoutProvider = ({ children, ...other }: IProps) => {
                 post,
                 hedgehogModeEnabled,
                 setHedgehogModeEnabled,
+                explainerTutorial,
+                setExplainerTutorial,
             }}
         >
             {children}

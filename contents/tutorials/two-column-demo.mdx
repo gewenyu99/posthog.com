@@ -1,0 +1,92 @@
+---
+title: "Understanding Two-Column Layouts in PostHog"
+date: "2024-03-20"
+description: "A comprehensive guide to using two-column layouts in PostHog tutorials"
+twoColumn: true
+tags: ["tutorials", "layout", "design"]
+---
+import CodeReference from 'components/CodeReference/CodeReference'
+import { CalloutBox } from 'components/Docs/CalloutBox'
+
+<CodeReference
+  file="contents/code-examples/two-column-demo/a.js"
+  description="Example file with various export patterns"
+  language="javascript"
+  lines="1-8"> 
+  askjhdgjklashdg
+
+  asjkdhg
+
+  askjdgh
+
+</CodeReference>
+
+# Understanding Two-Column Layouts in PostHog
+
+This tutorial demonstrates how to use the two-column layout feature in PostHog tutorials. The two-column layout is perfect for explainer-style content where you want to present information in a more spacious, readable format.
+
+## Why Use Two Columns?
+
+Two-column layouts offer several advantages:
+
+1. **Better Space Utilization**: Makes better use of wide screens
+2. **Improved Readability**: Creates a more comfortable reading experience
+3. **Visual Hierarchy**: Helps organize content more effectively
+4. **Modern Design**: Provides a contemporary look and feel
+
+## How to Enable Two Columns
+
+To enable the two-column layout, simply add `twoColumn: true` to your frontmatter:
+
+```mdx
+---
+title: "Your Tutorial Title"
+date: "2024-03-20"
+twoColumn: true
+---
+```
+
+## Best Practices
+
+
+When using two-column layouts, consider these best practices:
+
+1. **Content Organization**: Structure your content to flow naturally in the wider format
+2. **Visual Elements**: Use images and diagrams that benefit from the extra space
+3. **Code Examples**: Take advantage of the wider space for code snippets
+4. **Responsive Design**: Remember that the layout will stack on mobile devices
+
+## Example Code Block
+
+Here's an example of how code looks in the two-column layout:
+
+```javascript
+// Example code block
+const posthog = require('posthog-js')
+
+posthog.init('your-project-api-key', {
+    api_host: 'https://app.posthog.com'
+})
+
+// Track an event
+posthog.capture('tutorial_viewed', {
+    tutorial_name: 'two-column-demo'
+})
+```
+
+## Using Images
+
+Images can be particularly effective in the two-column layout:
+
+![Example Image](https://posthog.com/static/5c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c/hero.png)
+
+## Conclusion
+
+The two-column layout is a powerful tool for creating engaging, readable tutorials. Use it when you want to:
+
+- Present complex information clearly
+- Showcase code examples
+- Display detailed diagrams
+- Create a more immersive learning experience
+
+Remember that the layout is responsive and will adapt to different screen sizes, ensuring a good experience for all users. 

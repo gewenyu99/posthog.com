@@ -337,7 +337,7 @@ export default function Default({ children }) {
     const name = [user?.profile.firstName, user?.profile.lastName].filter(Boolean).join(' ')
     const { setNewPostModalOpen, newPostModalOpen, setLoginModalOpen, articleView } = useContext(PostsContext)
     const { pathname } = useLocation()
-    const { fullWidthContent, theoMode } = useLayoutData()
+    const { fullWidthContent, theoMode, explainerTutorial } = useLayoutData()
 
     return (
         <>
@@ -361,7 +361,7 @@ export default function Default({ children }) {
                         </div>
                     </div>
                 )}
-                {!theoMode && <PostsListing />}
+                {!theoMode && !explainerTutorial && <PostsListing />}
                 <div
                     className={`${
                         articleView

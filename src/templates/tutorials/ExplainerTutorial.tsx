@@ -31,6 +31,16 @@ import CloudinaryImage from 'components/CloudinaryImage'
 import AskMax from 'components/AskMax'
 import ImageSlider from 'components/ImageSlider'
 import { SelectedProvider } from 'components/CodeReference/context'
+import Tab from 'components/Tab'
+import { CodeBlock, SingleCodeBlock } from 'components/CodeBlock'
+import languageMap from 'components/CodeBlock/languages'
+import type { LanguageOption } from 'components/CodeBlock'
+import Highlight, { defaultProps, Language } from 'prism-react-renderer'
+import { darkTheme, lightTheme } from 'components/CodeBlock/theme'
+import { useValues } from 'kea'
+import { layoutLogic } from 'logic/layoutLogic'
+import { AnimatePresence, motion } from 'framer-motion'
+
 const A = (props) => <Link {...props} className="text-red hover:text-red font-semibold" />
 
 export const Intro = ({
@@ -126,39 +136,176 @@ const ContributorsSmall = ({ contributors }) => {
     ) : null
 }
 
+const Code = ({ language, children }: { language: string; children: string }) => {
+    const { websiteTheme } = useValues(layoutLogic)
+    const [tooltipVisible, setTooltipVisible] = useState(false)
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(children.trim())
+        setTooltipVisible(true)
+        setTimeout(() => {
+            setTooltipVisible(false)
+        }, 1000)
+    }
+
+    return (
+        <div className="code-block relative mt-2 mb-4 border border-light dark:border-dark rounded">
+            <div className="bg-accent dark:bg-accent-dark text-sm flex items-center w-full rounded-t">
+                <Tab.Group>
+                    <Tab.List className="flex items-center gap-[1px] flex-wrap">
+                        <Tab
+                            className={({ selected }) =>
+                                `cursor-pointer text-sm px-3 py-2 rounded-full relative after:h-[2px] after:-bottom-[1px] after:left-0 after:right-0 after:absolute after:content-[''] focus:outline-none focus:ring-0 ring-0 ${
+                                    selected
+                                        ? 'font-bold text-red hover:text-red dark:text-yellow hover:dark:text-yellow after:bg-red dark:after:bg-yellow'
+                                        : 'text-primary/50 dark:text-primary-dark/50 hover:after:bg-black/50 dark:hover:after:bg-white/50 hover:text-primary/75 hover:dark:text-primary-dark/75'
+                                }`
+                            }
+                        >
+                            {language}
+                        </Tab>
+                    </Tab.List>
+                </Tab.Group>
+                <div className="shrink-0 ml-auto flex items-center divide-x divide-border dark:divide-border-dark">
+                    <div className="relative flex items-center justify-center px-1">
+                        <button
+                            onClick={copyToClipboard}
+                            className="text-primary/50 hover:text-primary/75 dark:text-primary-dark/50 dark:hover:text-primary-dark/75 px-1 py-1 hover:bg-light dark:hover:bg-dark border border-transparent hover:border-light dark:hover:border-dark rounded relative hover:scale-[1.02] active:top-[.5px] active:scale-[.99] focus:outline-none focus:ring-0 ring-0"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 18 18"
+                                className="w-4 h-4 fill-current"
+                            >
+                                <g clipPath="url(#a)">
+                                    <path d="M3.079 5.843h2.103V2.419c0-.58.236-1.106.618-1.487A2.1 2.1 0 0 1 7.287.313h7.634c.58 0 1.106.237 1.487.619a2.1 2.1 0 0 1 .618 1.487v7.633a2.1 2.1 0 0 1-.618 1.488 2.1 2.1 0 0 1-1.487.618h-2.103v3.424c0 .58-.236 1.106-.618 1.487a2.1 2.1 0 0 1-1.487.618H3.079c-.58 0-1.106-.236-1.487-.618a2.1 2.1 0 0 1-.618-1.487V7.948c0-.58.236-1.106.618-1.487a2.1 2.1 0 0 1 1.487-.618Zm3.28 0h4.354c.58 0 1.106.236 1.487.618a2.1 2.1 0 0 1 .618 1.487v3.033h2.103a.925.925 0 0 0 .655-.273.926.926 0 0 0 .274-.655V2.418a.925.925 0 0 0-.274-.656.926.926 0 0 0-.655-.273H7.287a.924.924 0 0 0-.655.273.926.926 0 0 0-.273.656v3.424Zm-.586 1.176H3.077a.924.924 0 0 0-.655.274.926.926 0 0 0-.273.655v7.634c0 .254.104.487.273.655.169.169.401.274.655.274h7.634a.924.924 0 0 0 .656-.274.926.926 0 0 0 .273-.655V7.948a.925.925 0 0 0-.273-.655.926.926 0 0 0-.656-.274h-4.94.002Z" />
+                                </g>
+                                <defs>
+                                    <clipPath id="a">
+                                        <path d="M0 0h18v18H0z" />
+                                    </clipPath>
+                                </defs>
+                            </svg>
+                        </button>
+                        {tooltipVisible && (
+                            <AnimatePresence>
+                                <motion.div
+                                    className="absolute top-full mt-2 -right-2 bg-black text-white font-semibold px-2 py-1 rounded z-10"
+                                    initial={{ translateY: '-50%', opacity: 0 }}
+                                    animate={{ translateY: 0, opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                >
+                                    Copied!
+                                </motion.div>
+                            </AnimatePresence>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <Highlight
+                {...defaultProps}
+                code={children.trim()}
+                language={language as Language}
+                theme={websiteTheme === 'dark' ? darkTheme : lightTheme}
+            >
+                {({ className, tokens, getLineProps, getTokenProps }) => (
+                    <pre className="w-full m-0 p-0 rounded-t-none rounded-b bg-accent dark:bg-accent-dark border-light dark:border-dark border-t">
+                        <div className="flex whitespace-pre-wrap relative">
+                            <code className={`${className} block rounded-none !m-0 p-4 shrink-0 font-code font-medium text-sm article-content-ignore`}>
+                                {tokens.map((line, i) => (
+                                    <div key={i} className={getLineProps({ line, key: i }).className}>
+                                        {line.map((token, key) => (
+                                            <span key={key} {...getTokenProps({ token, key })} />
+                                        ))}
+                                    </div>
+                                ))}
+                            </code>
+                        </div>
+                    </pre>
+                )}
+            </Highlight>
+        </div>
+    )
+}
+
 const CodeExamples = ({ codeFiles }) => {
-    const [activeTab, setActiveTab] = useState(0)
-    console.log('All code files:', codeFiles)
+    const [fileContents, setFileContents] = useState<Record<string, string>>({})
+
+    const getLanguage = (extension: string) => {
+        // Map common file extensions to supported languages
+        const extensionMap: Record<string, string> = {
+            'js': 'javascript',
+            'jsx': 'jsx',
+            'ts': 'typescript',
+            'tsx': 'jsx',
+            'py': 'python',
+            'rb': 'ruby',
+            'php': 'php',
+            'java': 'java',
+            'kt': 'kotlin',
+            'go': 'go',
+            'rs': 'rust',
+            'swift': 'swift',
+            'dart': 'dart',
+            'html': 'html',
+            'css': 'css',
+            'scss': 'css',
+            'less': 'css',
+            'json': 'json',
+            'yaml': 'yaml',
+            'yml': 'yaml',
+            'xml': 'xml',
+            'sql': 'sql',
+            'sh': 'bash',
+            'bash': 'bash',
+            'md': 'markdown',
+            'mdx': 'mdx',
+            'graphql': 'graphql',
+            'git': 'git'
+        }
+        return extensionMap[extension] || 'text'
+    }
+
+    useEffect(() => {
+        const loadFileContents = async () => {
+            const contents: Record<string, string> = {}
+            for (const file of codeFiles) {
+                try {
+                    const response = await fetch(`/code-examples/${file.path}`)
+                    const text = await response.text()
+                    contents[file.path] = text
+                } catch (error) {
+                    console.error(`Error loading file ${file.path}:`, error)
+                    contents[file.path] = 'Error loading file content'
+                }
+            }
+            setFileContents(contents)
+        }
+
+        if (codeFiles?.length) {
+            loadFileContents()
+        }
+    }, [codeFiles])
 
     if (!codeFiles?.length) {
         return <div className="p-4">No code examples found</div>
     }
 
+    // Create the language options array
+    const languageOptions = codeFiles.map(file => ({
+        language: getLanguage(file.extension),
+        label: file.tabName,
+        file: file.tabName,
+        code: fileContents[file.path] || 'Loading...'
+    }))
+
     return (
-        <div className="h-full flex flex-col">
-            <div className="border-b border-light dark:border-dark">
-                <ul className="flex list-none p-0 m-0">
-                    {codeFiles.map((file, index) => (
-                        <li key={file.path} className="m-0">
-                            <button
-                                onClick={() => setActiveTab(index)}
-                                className={`px-4 py-2 border-b-2 ${
-                                    activeTab === index
-                                        ? 'border-red text-red'
-                                        : 'border-transparent hover:border-light dark:hover:border-dark'
-                                }`}
-                            >
-                                {file.name}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-            <div className="flex-1 overflow-auto p-4">
-                <pre className="whitespace-pre-wrap break-words">
-                    <code>{codeFiles[activeTab]?.content}</code>
-                </pre>
-            </div>
+        <div className="h-[calc(100vh-164px)] mb-4 flex flex-col">
+                <CodeBlock 
+                    currentLanguage={languageOptions[0]}
+                    children={languageOptions}
+                />
         </div>
     )
 }
@@ -179,12 +326,17 @@ export default function BlogPost({ data, pageContext, location, mobile = false }
     const processedCodeFiles =
         codeExamples?.nodes
             ?.filter((node) => node.relativePath.includes('code-examples/' + markdownFileName))
-            ?.map((node) => ({
-                name: node.name,
-                path: node.relativePath,
-                content: node.internal.content,
-            })) || []
+            ?.map((node) => {
 
+                return {
+                    name: node.name,
+                    path: node.relativePath,
+                    tabName: node.relativePath.replace(`code-examples/${markdownFileName}/`, ''),
+                    absolutePath: node.absolutePath,
+                    extension: node.extension,
+                }
+            }) || []
+    
     const components = {
         h1: (props) => Heading({ as: 'h1', ...props }),
         h2: (props) => Heading({ as: 'h2', ...props }),
@@ -269,15 +421,9 @@ export default function BlogPost({ data, pageContext, location, mobile = false }
                 imageType="absolute"
             />
             <SelectedProvider>
-                <div className="flex flex-col @3xl:flex-row h-screen">
-                    <div
-                        className={`article-content flex-[0_0_40%] transition-all md:pt-8 w-full overflow-auto h-[50vh] @3xl:h-screen`}
-                    >
-                        <div
-                            className={`mx-auto transition-all ${
-                                fullWidthContent ? 'max-w-full' : 'max-w-3xl'
-                            }  md:px-8 2xl:px-12`}
-                        >
+                <div className="flex flex-col @3xl:flex-row h-[calc(100vh-132px)] overflow-auto">
+                    <div className="article-content flex-[0_0_40%] transition-all md:pt-8 w-full h-[50vh] @3xl:h-screen">
+                        <div className={`mx-auto transition-all ${fullWidthContent ? 'max-w-full' : 'max-w-3xl'} md:px-8 2xl:px-12`}>
                             <Breadcrumbs category={category} tags={tags} />
                             <Intro
                                 title={title}
@@ -307,8 +453,10 @@ export default function BlogPost({ data, pageContext, location, mobile = false }
                             </div>
                         </div>
                     </div>
-                    <div className="flex-[0_0_60%] overflow-auto h-[50vh] @3xl:h-screen @3xl:flex-shrink-0 @3xl:sticky @3xl:top-[108px] @3xl:pl-8 @3xl:border-l @3xl:border-light @3xl:dark:border-dark">
-                        <CodeExamples codeFiles={processedCodeFiles} />
+                    <div className="flex-[0_0_60%] h-[50vh] @3xl:h-[calc(100vh-132px)] @3xl:flex-shrink-0 @3xl:sticky @3xl:top-[0px] @3xl:pl-4 @3xl:border-l @3xl:border-light @3xl:dark:border-dark">
+                        <div className="h-[50vh] @3xl:h-full">
+                            <CodeExamples codeFiles={processedCodeFiles} />
+                        </div>
                     </div>
                 </div>
             </SelectedProvider>
@@ -383,9 +531,7 @@ export const query = graphql`
                 name
                 extension
                 relativePath
-                internal {
-                    content
-                }
+                absolutePath
             }
         }
     }

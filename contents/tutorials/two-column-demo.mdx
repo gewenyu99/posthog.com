@@ -1,92 +1,82 @@
 ---
-title: "Understanding Two-Column Layouts in PostHog"
+title: "Understanding JavaScript Module Patterns"
 date: "2024-03-20"
-description: "A comprehensive guide to using two-column layouts in PostHog tutorials"
+description: "A comprehensive guide to JavaScript module patterns and imports/exports"
 twoColumn: true
-tags: ["tutorials", "layout", "design"]
+tags: ["javascript", "modules", "tutorials"]
 ---
-import CodeReference from 'components/CodeReference/CodeReference'
-import { CalloutBox } from 'components/Docs/CalloutBox'
 
+# JavaScript Module Patterns
+
+Let's explore different ways to export and import JavaScript modules using practical examples.
+
+## Default Exports
 <CodeReference
-  file="contents/code-examples/two-column-demo/a.js"
-  description="Example file with various export patterns"
+  file="code-examples/two-column-demo/a.js"
+  description="Default export of a PostHog client class"
   language="javascript"
-  lines="1-8"> 
-  askjhdgjklashdg
+  lines="1-8">
 
-  asjkdhg
-
-  askjdgh
-
+The most common pattern is using default exports for your main module functionality. The `PostHogClient` class is exported as the default export, making it the primary export of the module. This is commonly used for the main functionality of a module.
 </CodeReference>
 
-# Understanding Two-Column Layouts in PostHog
+## Importing Default Exports
 
-This tutorial demonstrates how to use the two-column layout feature in PostHog tutorials. The two-column layout is perfect for explainer-style content where you want to present information in a more spacious, readable format.
+<CodeReference
+  file="code-examples/two-column-demo/b.js"
+  description="Importing the default export"
+  language="javascript"
+  lines="1-2">
 
-## Why Use Two Columns?
+To use a default export, we use a simple import statement without curly braces. The name can be anything we choose, though it's common to use the same name as the export.
+</CodeReference>
 
-Two-column layouts offer several advantages:
+<CodeReference
+  file="code-examples/two-column-demo/a.js"
+  description="Named exports for constants and functions"
+  language="javascript"
+  lines="10-19">
+## Named Exports
 
-1. **Better Space Utilization**: Makes better use of wide screens
-2. **Improved Readability**: Creates a more comfortable reading experience
-3. **Visual Hierarchy**: Helps organize content more effectively
-4. **Modern Design**: Provides a contemporary look and feel
+Named exports allow us to export multiple values from a module. Here we export constants and utility functions that can be imported individually. This is useful for exporting multiple related pieces of functionality.
+</CodeReference>
 
-## How to Enable Two Columns
+<CodeReference
+  file="code-examples/two-column-demo/b.js"
+  description="Importing named exports"
+  language="javascript"
+  lines="3-4">
+## Importing Named Exports
 
-To enable the two-column layout, simply add `twoColumn: true` to your frontmatter:
+Named exports are imported using curly braces, allowing us to select exactly which exports we need. We can also rename them during import using the `as` keyword.
+</CodeReference>
 
-```mdx
----
-title: "Your Tutorial Title"
-date: "2024-03-20"
-twoColumn: true
----
-```
+<CodeReference
+  file="code-examples/two-column-demo/a.js"
+  description="Export with renaming and computed properties"
+  language="javascript"
+  lines="21-35">
+## Advanced Export Patterns
 
-## Best Practices
+JavaScript modules support more advanced patterns like renaming exports and using computed properties. These patterns provide flexibility in how we structure and expose our module's functionality.
+</CodeReference>
 
+<CodeReference
+  file="code-examples/two-column-demo/b.js"
+  description="Using namespace imports and dynamic imports"
+  language="javascript"
+  lines="6-8, 15-17">
+## Advanced Import Patterns
 
-When using two-column layouts, consider these best practices:
+We can import everything as a namespace using `* as`, or use dynamic imports for code splitting. Dynamic imports return a promise, allowing us to load modules on demand.
+</CodeReference>
 
-1. **Content Organization**: Structure your content to flow naturally in the wider format
-2. **Visual Elements**: Use images and diagrams that benefit from the extra space
-3. **Code Examples**: Take advantage of the wider space for code snippets
-4. **Responsive Design**: Remember that the layout will stack on mobile devices
+<CodeReference
+  file="code-examples/two-column-demo/b.js"
+  description="Putting it all together"
+  language="javascript"
+  lines="19-42">
+## Practical Usage
 
-## Example Code Block
-
-Here's an example of how code looks in the two-column layout:
-
-```javascript
-// Example code block
-const posthog = require('posthog-js')
-
-posthog.init('your-project-api-key', {
-    api_host: 'https://app.posthog.com'
-})
-
-// Track an event
-posthog.capture('tutorial_viewed', {
-    tutorial_name: 'two-column-demo'
-})
-```
-
-## Using Images
-
-Images can be particularly effective in the two-column layout:
-
-![Example Image](https://posthog.com/static/5c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c/hero.png)
-
-## Conclusion
-
-The two-column layout is a powerful tool for creating engaging, readable tutorials. Use it when you want to:
-
-- Present complex information clearly
-- Showcase code examples
-- Display detailed diagrams
-- Create a more immersive learning experience
-
-Remember that the layout is responsive and will adapt to different screen sizes, ensuring a good experience for all users. 
+Here's how all these patterns work together in practice. We can mix and match different import styles based on our needs, from simple default imports to dynamic loading of modules.
+</CodeReference>

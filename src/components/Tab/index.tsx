@@ -53,7 +53,7 @@ const TabGroup: typeof HeadlessTab.Group = ({ children, tabs }) => {
     }, [])
 
     return (
-        <HeadlessTab.Group selectedIndex={selectedIndex} onChange={handleChange} as="div" className="my-4">
+        <HeadlessTab.Group selectedIndex={selectedIndex} onChange={handleChange} as="div" className="h-full flex flex-col">
             {children}
         </HeadlessTab.Group>
     )
@@ -63,7 +63,7 @@ TabGroup.displayName = 'TabGroup'
 
 const TabList: typeof HeadlessTab.List = ({ children, className, ...props }) => {
     return (
-        <HeadlessTab.List {...props} as={Slider}>
+        <HeadlessTab.List {...props} as={Slider} className="flex-shrink-0">
             {children}
         </HeadlessTab.List>
     )
@@ -72,7 +72,7 @@ const TabList: typeof HeadlessTab.List = ({ children, className, ...props }) => 
 TabList.displayName = 'TabList'
 
 const TabPanels: typeof HeadlessTab.Panels = ({ children }) => {
-    return <HeadlessTab.Panels className="mt-4">{children}</HeadlessTab.Panels>
+    return <HeadlessTab.Panels className="flex-1 min-h-0">{children}</HeadlessTab.Panels>
 }
 
 TabPanels.displayName = 'TabPanels'

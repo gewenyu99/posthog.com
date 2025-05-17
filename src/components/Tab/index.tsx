@@ -31,29 +31,52 @@ export const Tab: React.FC & {
     )
 }
 
-const TabGroup: typeof HeadlessTab.Group = ({ children, tabs }) => {
-    const [selectedIndex, setSelectedIndex] = useState(0)
+interface TabGroupProps {
+    children: React.ReactNode
+    tabs?: string[]
+    defaultIndex?: number
+    selectedIndex?: number
+    onChange?: (index: number) => void
+}
+
+const TabGroup: typeof HeadlessTab.Group = ({
+    children,
+    tabs,
+    defaultIndex = 0,
+    selectedIndex,
+    onChange,
+}: TabGroupProps) => {
+    const [internalIndex, setInternalIndex] = useState(defaultIndex)
     const hasTabs = tabs?.length > 0
+    const isControlled = selectedIndex !== undefined && onChange !== undefined
+    const currentIndex = isControlled ? selectedIndex : internalIndex
 
     const handleChange = (index: number) => {
         if (hasTabs && typeof window !== 'undefined') {
-            const url = new URL(window.location)
-            url.searchParams.set('tab', tabs[index])
-            window.history.pushState({}, '', url)
+            if (hasTabs && typeof window !== 'undefined') {
+                const url = new URL(window.location.href)
+                url.searchParams.set('tab', tabs[index])
+                window.history.pushState({}, '', url)
+            }
+            onChange ? onChange(index) : setInternalIndex(index)
         }
-        setSelectedIndex(index)
     }
 
     useEffect(() => {
-        if (hasTabs && typeof window !== 'undefined') {
+        if (hasTabs && typeof window !== 'undefined' && !isControlled) {
             const params = new URLSearchParams(window.location.search)
-            const tabIndex = tabs.indexOf(params.get('tab'))
-            if (tabIndex >= 0) setSelectedIndex(tabIndex)
+            const tabIndex = tabs.indexOf(params.get('tab') || '')
+            if (tabIndex >= 0) setInternalIndex(tabIndex)
         }
     }, [])
 
     return (
-        <HeadlessTab.Group selectedIndex={selectedIndex} onChange={handleChange} as="div" className="h-full flex flex-col">
+        <HeadlessTab.Group
+            selectedIndex={currentIndex}
+            onChange={handleChange}
+            as="div"
+            className="h-full flex flex-col"
+        >
             {children}
         </HeadlessTab.Group>
     )

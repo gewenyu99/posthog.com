@@ -4,18 +4,23 @@ date: "2024-03-20"
 description: "A comprehensive guide to JavaScript module patterns and imports/exports"
 twoColumn: true
 tags: ["javascript", "modules", "tutorials"]
+codeExamples: ["code-examples/two-column-demo/a.js", "code-examples/two-column-demo/b.js"]
 ---
+
+import CalloutBox from 'components/CodeReference/CodeReference'
+
 
 # JavaScript Module Patterns
 
 Let's explore different ways to export and import JavaScript modules using practical examples.
 
-## Default Exports
 <CodeReference
   file="code-examples/two-column-demo/a.js"
   description="Default export of a PostHog client class"
   language="javascript"
   lines="1-8">
+
+## Default Exports
 
 The most common pattern is using default exports for your main module functionality. The `PostHogClient` class is exported as the default export, making it the primary export of the module. This is commonly used for the main functionality of a module.
 </CodeReference>

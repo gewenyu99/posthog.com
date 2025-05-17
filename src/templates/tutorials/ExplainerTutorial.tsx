@@ -8,7 +8,7 @@ import { ZoomImage } from 'components/ZoomImage'
 import { graphql, useStaticQuery } from 'gatsby'
 import { GatsbyImage, getImage } from 'gatsby-plugin-image'
 import { MDXRenderer } from 'gatsby-plugin-mdx'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { MdxCodeBlock } from '../../components/CodeBlock'
 import { shortcodes } from '../../mdxGlobalComponents'
 import { Heading } from 'components/Heading'
@@ -30,8 +30,8 @@ import TeamMember from 'components/TeamMember'
 import CloudinaryImage from 'components/CloudinaryImage'
 import AskMax from 'components/AskMax'
 import ImageSlider from 'components/ImageSlider'
-import { SelectedProvider } from 'components/CodeReference/context'
-import Tab from 'components/Tab'
+import { SelectedProvider, SelectedContext } from 'components/CodeReference/context'
+import { Tab } from 'components/Tab'
 import { CodeBlock, SingleCodeBlock } from 'components/CodeBlock'
 import languageMap from 'components/CodeBlock/languages'
 import type { LanguageOption } from 'components/CodeBlock'
@@ -40,6 +40,8 @@ import { darkTheme, lightTheme } from 'components/CodeBlock/theme'
 import { useValues } from 'kea'
 import { layoutLogic } from 'logic/layoutLogic'
 import { AnimatePresence, motion } from 'framer-motion'
+import CodeReference from 'components/CodeReference/CodeReference'
+import { Tab as HeadlessTab } from '@headlessui/react'
 
 const A = (props) => <Link {...props} className="text-red hover:text-red font-semibold" />
 
@@ -136,9 +138,18 @@ const ContributorsSmall = ({ contributors }) => {
     ) : null
 }
 
-const Code = ({ language, children }: { language: string; children: string }) => {
+const Code = ({
+    language,
+    children,
+    showLineNumbers = false,
+}: {
+    language: string
+    children: string
+    showLineNumbers?: boolean
+}) => {
     const { websiteTheme } = useValues(layoutLogic)
     const [tooltipVisible, setTooltipVisible] = useState(false)
+    const { selectedLines } = useContext(SelectedContext)
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(children.trim())
@@ -149,28 +160,14 @@ const Code = ({ language, children }: { language: string; children: string }) =>
     }
 
     return (
-        <div className="code-block relative mt-2 mb-4 border border-light dark:border-dark rounded">
+        <div className="code-block relative mt-2 mb-4 border border-light dark:border-dark rounded h-full flex flex-col">
             <div className="bg-accent dark:bg-accent-dark text-sm flex items-center w-full rounded-t">
-                <Tab.Group>
-                    <Tab.List className="flex items-center gap-[1px] flex-wrap">
-                        <Tab
-                            className={({ selected }) =>
-                                `cursor-pointer text-sm px-3 py-2 rounded-full relative after:h-[2px] after:-bottom-[1px] after:left-0 after:right-0 after:absolute after:content-[''] focus:outline-none focus:ring-0 ring-0 ${
-                                    selected
-                                        ? 'font-bold text-red hover:text-red dark:text-yellow hover:dark:text-yellow after:bg-red dark:after:bg-yellow'
-                                        : 'text-primary/50 dark:text-primary-dark/50 hover:after:bg-black/50 dark:hover:after:bg-white/50 hover:text-primary/75 hover:dark:text-primary-dark/75'
-                                }`
-                            }
-                        >
-                            {language}
-                        </Tab>
-                    </Tab.List>
-                </Tab.Group>
+                <div className="min-w-0 mr-8 px-3 py-2 font-bold opacity-50">{language}</div>
                 <div className="shrink-0 ml-auto flex items-center divide-x divide-border dark:divide-border-dark">
                     <div className="relative flex items-center justify-center px-1">
                         <button
                             onClick={copyToClipboard}
-                            className="text-primary/50 hover:text-primary/75 dark:text-primary-dark/50 dark:hover:text-primary-dark/75 px-1 py-1 hover:bg-light dark:hover:bg-dark border border-transparent hover:border-light dark:hover:border-dark rounded relative hover:scale-[1.02] active:top-[.5px] active:scale-[.99] focus:outline-none focus:ring-0 ring-0"
+                            className="text-primary/50 hover:text-primary/75 dark:text-primary-dark/50 dark:hover:text-primary-dark/75 px-1 py-1 hover:bg-light dark:hover:bg-dark border border-transparent hover:border-light dark:hover:border-dark rounded relative hover:scale-[1.02] active:top-[.5px] active:scale-[.99]"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -210,16 +207,42 @@ const Code = ({ language, children }: { language: string; children: string }) =>
                 theme={websiteTheme === 'dark' ? darkTheme : lightTheme}
             >
                 {({ className, tokens, getLineProps, getTokenProps }) => (
-                    <pre className="w-full m-0 p-0 rounded-t-none rounded-b bg-accent dark:bg-accent-dark border-light dark:border-dark border-t">
+                    <pre className="w-full m-0 p-0 rounded-t-none rounded-b bg-accent dark:bg-accent-dark border-light dark:border-dark border-t flex-1 overflow-auto">
                         <div className="flex whitespace-pre-wrap relative">
-                            <code className={`${className} block rounded-none !m-0 p-4 shrink-0 font-code font-medium text-sm article-content-ignore`}>
-                                {tokens.map((line, i) => (
-                                    <div key={i} className={getLineProps({ line, key: i }).className}>
-                                        {line.map((token, key) => (
-                                            <span key={key} {...getTokenProps({ token, key })} />
+                            {showLineNumbers && (
+                                <pre className="m-0 py-4 pr-3 pl-5 inline-block font-code font-medium text-sm bg-accent dark:bg-accent-dark">
+                                    <span
+                                        className="select-none flex flex-col dark:text-white/60 text-black/60 shrink-0"
+                                        aria-hidden="true"
+                                    >
+                                        {tokens.map((_, i) => (
+                                            <span className="inline-block text-right align-middle" key={i}>
+                                                <span>{i + 1}</span>
+                                            </span>
                                         ))}
-                                    </div>
-                                ))}
+                                    </span>
+                                </pre>
+                            )}
+                            <code
+                                className={`${className} block rounded-none !m-0 p-4 shrink-0 font-code font-medium text-sm article-content-ignore`}
+                            >
+                                {tokens.map((line, i) => {
+                                    const { className, ...props } = getLineProps({ line, key: i })
+                                    const isHighlighted = selectedLines.includes(i + 1)
+                                    return (
+                                        <div
+                                            key={i}
+                                            className={`${className} ${
+                                                isHighlighted ? 'bg-yellow/10 dark:bg-yellow/20' : ''
+                                            }`}
+                                            {...props}
+                                        >
+                                            {line.map((token, key) => (
+                                                <span key={key} {...getTokenProps({ token, key })} />
+                                            ))}
+                                        </div>
+                                    )
+                                })}
                             </code>
                         </div>
                     </pre>
@@ -231,58 +254,78 @@ const Code = ({ language, children }: { language: string; children: string }) =>
 
 const CodeExamples = ({ codeFiles }) => {
     const [fileContents, setFileContents] = useState<Record<string, string>>({})
+    const { selectedFile, setSelectedFile } = useContext(SelectedContext)
+    const [selectedIndex, setSelectedIndex] = useState(0)
+
+    useEffect(() => {
+        if (selectedFile) {
+            const index = codeFiles.findIndex((file) => file.path === selectedFile)
+            if (index !== -1) {
+                setSelectedIndex(index)
+            }
+        }
+    }, [selectedFile, codeFiles])
+
+    const handleChange = (index: number) => {
+        setSelectedIndex(index)
+        setSelectedFile(codeFiles[index].path)
+    }
 
     const getLanguage = (extension: string) => {
         // Map common file extensions to supported languages
         const extensionMap: Record<string, string> = {
-            'js': 'javascript',
-            'jsx': 'jsx',
-            'ts': 'typescript',
-            'tsx': 'jsx',
-            'py': 'python',
-            'rb': 'ruby',
-            'php': 'php',
-            'java': 'java',
-            'kt': 'kotlin',
-            'go': 'go',
-            'rs': 'rust',
-            'swift': 'swift',
-            'dart': 'dart',
-            'html': 'html',
-            'css': 'css',
-            'scss': 'css',
-            'less': 'css',
-            'json': 'json',
-            'yaml': 'yaml',
-            'yml': 'yaml',
-            'xml': 'xml',
-            'sql': 'sql',
-            'sh': 'bash',
-            'bash': 'bash',
-            'md': 'markdown',
-            'mdx': 'mdx',
-            'graphql': 'graphql',
-            'git': 'git'
+            js: 'javascript',
+            jsx: 'jsx',
+            ts: 'typescript',
+            tsx: 'jsx',
+            py: 'python',
+            rb: 'ruby',
+            php: 'php',
+            java: 'java',
+            kt: 'kotlin',
+            go: 'go',
+            rs: 'rust',
+            swift: 'swift',
+            dart: 'dart',
+            html: 'html',
+            css: 'css',
+            scss: 'css',
+            less: 'css',
+            json: 'json',
+            yaml: 'yaml',
+            yml: 'yaml',
+            xml: 'xml',
+            sql: 'sql',
+            sh: 'bash',
+            bash: 'bash',
+            md: 'markdown',
+            mdx: 'mdx',
+            graphql: 'graphql',
+            git: 'git',
         }
         return extensionMap[extension] || 'text'
     }
 
-    useEffect(() => {
-        const loadFileContents = async () => {
-            const contents: Record<string, string> = {}
-            for (const file of codeFiles) {
-                try {
-                    const response = await fetch(`/code-examples/${file.path}`)
-                    const text = await response.text()
-                    contents[file.path] = text
-                } catch (error) {
-                    console.error(`Error loading file ${file.path}:`, error)
-                    contents[file.path] = 'Error loading file content'
-                }
-            }
-            setFileContents(contents)
-        }
+    const loadFileContents = async () => {
+        const contents: Record<string, string> = {}
+        for (const file of codeFiles) {
+            try {
+                // Fetch the file content using a web request
+                console.log(`AHOSdlkjgkasdhgjkahsdgljkhlkj /${file.path}`)
 
+                const response = await fetch(`/${file.path}`)
+                const content = await response.text()
+                contents[file.path] = content
+            } catch (error) {
+                console.error(`Error loading file ${file.path}:`, error)
+                contents[file.path] = 'Error loading file content'
+            }
+        }
+        console.log(contents)
+        setFileContents(contents)
+    }
+
+    useEffect(() => {
         if (codeFiles?.length) {
             loadFileContents()
         }
@@ -293,27 +336,48 @@ const CodeExamples = ({ codeFiles }) => {
     }
 
     // Create the language options array
-    const languageOptions = codeFiles.map(file => ({
+    const languageOptions = codeFiles.map((file) => ({
         language: getLanguage(file.extension),
         label: file.tabName,
         file: file.tabName,
-        code: fileContents[file.path] || 'Loading...'
+        code: fileContents[file.path] || 'Loading...',
     }))
 
     return (
-        <div className="h-[calc(100vh-164px)] mb-4 flex flex-col">
-                <CodeBlock 
-                    currentLanguage={languageOptions[0]}
-                    children={languageOptions}
-                />
-        </div>
+        <>
+            {codeFiles.length > 0 && Object.keys(fileContents).length === codeFiles.length ? (
+                <div className="h-full flex flex-col pb-4">
+                    <Tab.Group selectedIndex={selectedIndex} onChange={handleChange}>
+                        <Tab.List className="flex items-center gap-[1px] flex-wrap">
+                            {languageOptions.map((option) => (
+                                <Tab key={option.file}>{option.label}</Tab>
+                            ))}
+                        </Tab.List>
+                        <Tab.Panels className="flex-1 h-full">
+                            {languageOptions.map((option) => (
+                                <Tab.Panel key={option.file} className="h-full">
+                                    <Code language={option.language} showLineNumbers>
+                                        {option.code}
+                                    </Code>
+                                </Tab.Panel>
+                            ))}
+                        </Tab.Panels>
+                    </Tab.Group>
+                </div>
+            ) : (
+                <div className="animate-pulse">
+                    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+                    <div className="h-96 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+            )}
+        </>
     )
 }
 
 export default function BlogPost({ data, pageContext, location, mobile = false }) {
-    const { postData, codeExamples } = data
+    const { postData } = data
     const { body, excerpt, fields } = postData
-    const { date, title, featuredImage, featuredVideo, featuredImageType, contributors, tags, seo } =
+    const { date, title, featuredImage, featuredVideo, featuredImageType, contributors, tags, seo, codeExamples } =
         postData?.frontmatter
     const lastUpdated = postData?.parent?.fields?.gitLogLatestDate
     const filePath = postData?.parent?.relativePath
@@ -321,22 +385,14 @@ export default function BlogPost({ data, pageContext, location, mobile = false }
 
     // Get the markdown file name from the path
     const markdownFileName = filePath?.split('/').pop()?.replace('.mdx', '') || ''
-
-    // Process all code examples without filtering
     const processedCodeFiles =
-        codeExamples?.nodes
-            ?.filter((node) => node.relativePath.includes('code-examples/' + markdownFileName))
-            ?.map((node) => {
+        codeExamples?.map((file) => ({
+            name: file.name,
+            path: file,
+            tabName: file.replace(`code-examples/${markdownFileName}/`, ''),
+            extension: file.split('.').pop(),
+        })) || []
 
-                return {
-                    name: node.name,
-                    path: node.relativePath,
-                    tabName: node.relativePath.replace(`code-examples/${markdownFileName}/`, ''),
-                    absolutePath: node.absolutePath,
-                    extension: node.extension,
-                }
-            }) || []
-    
     const components = {
         h1: (props) => Heading({ as: 'h1', ...props }),
         h2: (props) => Heading({ as: 'h2', ...props }),
@@ -360,6 +416,7 @@ export default function BlogPost({ data, pageContext, location, mobile = false }
         BuiltBy,
         TeamMember,
         ImageSlider,
+        CodeReference,
         ...shortcodes,
     }
     const { tableOfContents, askMax } = pageContext
@@ -423,7 +480,11 @@ export default function BlogPost({ data, pageContext, location, mobile = false }
             <SelectedProvider>
                 <div className="flex flex-col @3xl:flex-row h-[calc(100vh-132px)] overflow-auto">
                     <div className="article-content flex-[0_0_40%] transition-all md:pt-8 w-full h-[50vh] @3xl:h-screen">
-                        <div className={`mx-auto transition-all ${fullWidthContent ? 'max-w-full' : 'max-w-3xl'} md:px-8 2xl:px-12`}>
+                        <div
+                            className={`mx-auto transition-all ${
+                                fullWidthContent ? 'max-w-full' : 'max-w-3xl'
+                            } md:px-8 2xl:px-12`}
+                        >
                             <Breadcrumbs category={category} tags={tags} />
                             <Intro
                                 title={title}
@@ -453,7 +514,7 @@ export default function BlogPost({ data, pageContext, location, mobile = false }
                             </div>
                         </div>
                     </div>
-                    <div className="flex-[0_0_60%] h-[50vh] @3xl:h-[calc(100vh-132px)] @3xl:flex-shrink-0 @3xl:sticky @3xl:top-[0px] @3xl:pl-4 @3xl:border-l @3xl:border-light @3xl:dark:border-dark">
+                    <div className="flex-[0_0_60%] h-[50vh] @3xl:h-[calc(100vh-132px)] @3xl:flex-shrink-0 @3xl:sticky @3xl:top-[0px] @3xl:px-4 @3xl:border-l @3xl:border-light @3xl:dark:border-dark">
                         <div className="h-[50vh] @3xl:h-full">
                             <CodeExamples codeFiles={processedCodeFiles} />
                         </div>
@@ -492,6 +553,7 @@ export const query = graphql`
                 description
                 featuredImageType
                 featuredVideo
+                codeExamples
                 featuredImage {
                     publicURL
                     childImageSharp {

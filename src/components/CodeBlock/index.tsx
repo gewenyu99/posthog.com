@@ -38,9 +38,9 @@ type SingleCodeBlockProps = {
     showLabel?: boolean
     showLineNumbers?: boolean
     showCopy?: boolean
+
     language: string
     children: string
-    highlightLines?: number[]
 }
 
 type MdxCodeBlock = {
@@ -116,14 +116,14 @@ export const MdxCodeBlock = ({ children, ...props }: MdxCodeBlock) => {
     )
 }
 
-export const SingleCodeBlock = ({ label, language, children, highlightLines = [], ...props }: SingleCodeBlockProps) => {
+export const SingleCodeBlock = ({ label, language, children, ...props }: SingleCodeBlockProps) => {
     const currentLanguage = {
         language,
         code: children,
     }
 
     return (
-        <CodeBlock label={label} currentLanguage={currentLanguage} {...props} highlightLines={highlightLines}>
+        <CodeBlock label={label} currentLanguage={currentLanguage} {...props}>
             {[currentLanguage]}
         </CodeBlock>
     )
@@ -146,8 +146,7 @@ export const CodeBlock = ({
     onChange,
     lineNumberStart = 1,
     tooltips,
-    highlightLines = [],
-}: CodeBlockProps & { highlightLines?: number[] }) => {
+}: CodeBlockProps) => {
     if (languages.length < 0 || !currentLanguage) {
         return null
     }
@@ -165,7 +164,6 @@ export const CodeBlock = ({
     const displayName = label || languageMap[currentLanguage.language]?.label || currentLanguage.language
 
     const { websiteTheme } = useValues(layoutLogic)
-    const highlightColor = websiteTheme === 'dark' ? 'bg-blue-400/[.2]' : 'bg-blue-400/[.1]'
 
     React.useEffect(() => {
         // Browser check - no cookies on the server
@@ -201,9 +199,9 @@ export const CodeBlock = ({
     }
 
     return (
-        <div className="code-block relative mt-2 mb-4 border border-light dark:border-dark rounded flex flex-col h-full">
+        <div className="code-block relative mt-2 mb-4 border border-light dark:border-dark rounded">
             {showLabel && (
-                <div className="bg-accent dark:bg-accent-dark text-sm flex items-center w-full rounded-t shrink-0">
+                <div className="bg-accent dark:bg-accent-dark text-sm flex items-center w-full rounded-t">
                     {selector === 'tabs' && languages.length > 1 ? (
                         <Tab.Group onChange={(index) => onChange?.(languages[index])}>
                             <Tab.List className="flex items-center gap-[1px] flex-wrap">
@@ -322,98 +320,90 @@ export const CodeBlock = ({
                 </div>
             )}
 
-            <div className="flex-1 overflow-auto">
-                <Highlight
-                    {...defaultProps}
-                    code={replaceProjectInfo(currentLanguage.code.trim())}
-                    language={(languageMap[currentLanguage.language]?.language || currentLanguage.language) as Language}
-                    theme={websiteTheme === 'dark' ? darkTheme : lightTheme}
-                >
-                    {({ className, style, tokens, getLineProps, getTokenProps }) => (
-                        <pre
-                            className={`w-full m-0 p-0 rounded-t-none rounded-b bg-accent dark:bg-accent-dark border-light dark:border-dark ${
-                                showLabel ? 'border-t' : ''
-                            }`}
-                        >
-                            <div className="flex whitespace-pre-wrap relative" id={codeBlockId}>
-                                {showLineNumbers && (
-                                    <pre className="m-0 py-4 pr-3 pl-5 inline-block font-code font-medium text-sm bg-accent dark:bg-accent-dark">
-                                        <span
-                                            className="select-none flex flex-col dark:text-white/60 text-black/60 shrink-0"
-                                            aria-hidden="true"
-                                        >
-                                            {tokens.map((_, i) => {
-                                                return (
-                                                    <span className="inline-block text-right align-middle" key={i}>
-                                                        <span>{i + lineNumberStart}</span>
-                                                    </span>
-                                                )
-                                            })}
-                                        </span>
-                                    </pre>
-                                )}
+            <Highlight
+                {...defaultProps}
+                code={replaceProjectInfo(currentLanguage.code.trim())}
+                language={(languageMap[currentLanguage.language]?.language || currentLanguage.language) as Language}
+                theme={websiteTheme === 'dark' ? darkTheme : lightTheme}
+            >
+                {({ className, style, tokens, getLineProps, getTokenProps }) => (
+                    <pre
+                        className={`w-full m-0 p-0 rounded-t-none rounded-b bg-accent dark:bg-accent-dark border-light dark:border-dark ${
+                            showLabel ? 'border-t' : ''
+                        }`}
+                    >
+                        <div className="flex whitespace-pre-wrap relative" id={codeBlockId}>
+                            {showLineNumbers && (
+                                <pre className="m-0 py-4 pr-3 pl-5 inline-block font-code font-medium text-sm bg-accent dark:bg-accent-dark">
+                                    <span
+                                        className="select-none flex flex-col dark:text-white/60 text-black/60 shrink-0"
+                                        aria-hidden="true"
+                                    >
+                                        {tokens.map((_, i) => {
+                                            return (
+                                                <span className="inline-block text-right align-middle" key={i}>
+                                                    <span>{i + lineNumberStart}</span>
+                                                </span>
+                                            )
+                                        })}
+                                    </span>
+                                </pre>
+                            )}
 
-                                <code
-                                    className={`${className} block rounded-none !m-0 p-4 shrink-0 font-code font-medium text-sm article-content-ignore`}
-                                >
-                                    {tokens.map((line, i) => {
-                                        const { className, ...props } = getLineProps({ line, key: i })
-                                        const tooltipContent =
-                                            tooltips?.find((tooltip) => tooltip.lineNumber === i + lineNumberStart)
-                                                ?.content ||
-                                            line
-                                                .find((token) => token.content.startsWith(tooltipKey))
-                                                ?.content.replace(tooltipKey, '')
-                                        const firstContentIndex = line.findIndex((token) => !!token.content.trim())
-                                        return (
-                                            <div
-                                                key={i}
-                                                className={`${className} relative ${
-                                                    highlightLines.includes(i + lineNumberStart) ? highlightColor : ''
-                                                }`}
-                                                {...props}
-                                            >
-                                                {line
-                                                    .filter((token) => !token.content.startsWith(tooltipKey))
-                                                    .map((token, key) => {
-                                                        const { className, children, ...props } = getTokenProps({
-                                                            token,
-                                                            key,
-                                                        })
-                                                        return (
-                                                            <span className="relative" key={key}>
-                                                                {firstContentIndex === key && tooltipContent && (
-                                                                    <Tooltip
-                                                                        content={() => (
-                                                                            <div className="text-center max-w-[200px]">
-                                                                                {tooltipContent.trim()}
-                                                                            </div>
-                                                                        )}
-                                                                    >
-                                                                        <span className="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2 flex h-3 w-3">
-                                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue/80 opacity-75"></span>
-                                                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-blue"></span>
-                                                                        </span>
-                                                                    </Tooltip>
-                                                                )}
-                                                                <span
-                                                                    className={`${className} text-shadow-none`}
-                                                                    {...props}
+                            <code
+                                className={`${className} block rounded-none !m-0 p-4 shrink-0 font-code font-medium text-sm article-content-ignore`}
+                            >
+                                {tokens.map((line, i) => {
+                                    const { className, ...props } = getLineProps({ line, key: i })
+                                    const tooltipContent =
+                                        tooltips?.find((tooltip) => tooltip.lineNumber === i + lineNumberStart)
+                                            ?.content ||
+                                        line
+                                            .find((token) => token.content.startsWith(tooltipKey))
+                                            ?.content.replace(tooltipKey, '')
+                                    const firstContentIndex = line.findIndex((token) => !!token.content.trim())
+                                    return (
+                                        <div key={i} className={`${className} relative`} {...props}>
+                                            {line
+                                                .filter((token) => !token.content.startsWith(tooltipKey))
+                                                .map((token, key) => {
+                                                    const { className, children, ...props } = getTokenProps({
+                                                        token,
+                                                        key,
+                                                    })
+                                                    return (
+                                                        <span className="relative" key={key}>
+                                                            {firstContentIndex === key && tooltipContent && (
+                                                                <Tooltip
+                                                                    content={() => (
+                                                                        <div className="text-center max-w-[200px]">
+                                                                            {tooltipContent.trim()}
+                                                                        </div>
+                                                                    )}
                                                                 >
-                                                                    {children}
-                                                                </span>
+                                                                    <span className="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2 flex h-3 w-3">
+                                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue/80 opacity-75"></span>
+                                                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-blue"></span>
+                                                                    </span>
+                                                                </Tooltip>
+                                                            )}
+                                                            <span
+                                                                className={`${className} text-shadow-none`}
+                                                                {...props}
+                                                            >
+                                                                {children}
                                                             </span>
-                                                        )
-                                                    })}
-                                            </div>
-                                        )
-                                    })}
-                                </code>
-                            </div>
-                        </pre>
-                    )}
-                </Highlight>
-            </div>
+                                                        </span>
+                                                    )
+                                                })}
+                                        </div>
+                                    )
+                                })}
+                            </code>
+                        </div>
+                    </pre>
+                )}
+            </Highlight>
         </div>
     )
 }

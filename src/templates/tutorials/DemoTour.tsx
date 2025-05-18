@@ -29,7 +29,7 @@ import ImageSlider from 'components/ImageSlider'
 import { SelectedProvider } from 'components/DemoTour/DemoContext'
 import { DemoCode } from 'components/DemoTour/DemoCode'
 import Callout from 'components/Docs/CalloutBox'
-import { parseCodeFile } from 'components/DemoTour/LoadDemoCode'
+import { parseCodeFile, loadFileContents } from 'components/DemoTour/LoadDemoCode'
 
 const A = (props) => <Link {...props} className="text-red hover:text-red font-semibold" />
 
@@ -128,6 +128,13 @@ export default function DemoTourTemplate({ data, pageContext, location, mobile =
 
     // Get the markdown file name from the path
     const processedCodeFiles = codeExamples?.map(parseCodeFile) || []
+    const [fileContents, setFileContents] = useState<Record<string, string>>({})
+
+    useEffect(() => {
+        if (processedCodeFiles?.length) {
+            loadFileContents(processedCodeFiles).then(setFileContents)
+        }
+    }, [processedCodeFiles])
 
     const components = {
         h1: (props) => Heading({ as: 'h1', ...props }),
@@ -252,7 +259,7 @@ export default function DemoTourTemplate({ data, pageContext, location, mobile =
                     </div>
                     <div className="flex-[0_0_60%] h-[50vh] @3xl:h-[calc(100vh-132px)] @3xl:flex-shrink-0 @3xl:sticky @3xl:top-[0px] @3xl:border-l @3xl:border-light @3xl:dark:border-dark bg-accent dark:bg-accent-dark">
                         <div className="h-[50vh] @3xl:h-full">
-                            <DemoCode codeFiles={processedCodeFiles} />
+                            <DemoCode codeFiles={processedCodeFiles} fileContents={fileContents} />
                         </div>
                     </div>
                 </div>

@@ -15,16 +15,16 @@ export default function DemoReference({ file, children, lines }: DemoReferencePr
     const id = useId()
 
     const handleMouseOver = () => {
-        if (!lines) return
-
-        const parsedLines = lines.split(',').flatMap((line) => {
-            if (line.includes('-')) {
-                const [start, end] = line.split('-')
-                return Array.from({ length: parseInt(end) - parseInt(start) + 1 }, (_, i) => parseInt(start) + i)
-            } else {
-                return [parseInt(line)]
-            }
-        })
+        const parsedLines = lines
+            ? lines.split(',').flatMap((line) => {
+                  if (line.includes('-')) {
+                      const [start, end] = line.split('-')
+                      return Array.from({ length: parseInt(end) - parseInt(start) + 1 }, (_, i) => parseInt(start) + i)
+                  } else {
+                      return [parseInt(line)]
+                  }
+              })
+            : []
 
         setSelectedFile(file)
         setSelectedLines(parsedLines)
@@ -35,7 +35,7 @@ export default function DemoReference({ file, children, lines }: DemoReferencePr
         <div
             className={`py-4 group border ${
                 selectedReferenceId === id
-                    ? 'bg-gray-50 dark:bg-gray-900 border-light dark:border-dark border-l-4 border-l-light dark:border-l-dark rounded-md pl-3'
+                    ? 'bg-gray-50 dark:bg-gray-900 border-light dark:border-dark border-l-4 border-l-light dark:border-l-dark rounded-md -mx-4 px-4'
                     : 'border-transparent'
             } transition-all`}
             onMouseOver={handleMouseOver}

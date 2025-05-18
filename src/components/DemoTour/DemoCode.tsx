@@ -2,35 +2,29 @@ import React, { useState, useEffect, useContext } from 'react'
 import { Tab } from 'components/Tab'
 import { DemoCodeFence } from './DemoCodeFence'
 import { SelectedContext } from './DemoContext'
-import { CodeFile, getLanguage, loadFileContents, parseCodeFile } from './LoadDemoCode'
-import languageMap from 'components/CodeBlock/languages'
+import { CodeFile, getLanguage } from './LoadDemoCode'
 
 interface DemoCodeProps {
     codeFiles: CodeFile[]
+    fileContents: Record<string, string>
 }
 
-export const DemoCode = ({ codeFiles }: DemoCodeProps) => {
-    const [fileContents, setFileContents] = useState<Record<string, string>>({})
+export const DemoCode = ({ codeFiles, fileContents }: DemoCodeProps) => {
     const { selectedFile, setSelectedFile } = useContext(SelectedContext)
     const [selectedIndex, setSelectedIndex] = useState(0)
 
     useEffect(() => {
         if (selectedFile) {
-            const index = codeFiles.findIndex((file) => file.path === selectedFile)
+            const index = codeFiles.findIndex((file) => file.fileName === selectedFile)
             if (index !== -1) {
                 setSelectedIndex(index)
             }
         }
     }, [selectedFile, codeFiles])
 
-    useEffect(() => {
-        if (codeFiles?.length) {
-            loadFileContents(codeFiles).then(setFileContents)
-        }
-    }, [codeFiles])
-
     const handleChange = (index: number) => {
         setSelectedIndex(index)
+        setSelectedFile(codeFiles[index].fileName)
     }
 
     return (

@@ -38,7 +38,7 @@ cd chat-app-usage
 ``` 
 Say **yes** to TypeScript, **yes** to app router, and the defaults for other options.
 
-<DemoReference file="app/page.tsx" language="tsx" lines="1-82">
+<DemoReference file="app/page.tsx" language="tsx" lines="">
 
 ## Adding a chat UI
 
@@ -48,11 +48,66 @@ Here's a simple chat UI that lets users prompt a model and see a response built 
 <DemoReference file="app/page.tsx" language="tsx" lines="47-71">
 
 The chat interface takes a nickname and a short message, which is submitted as an HTML form.
+
+```tsx
+<form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              placeholder="Your nickname"
+              className="w-full p-2 border rounded mb-2"
+              disabled={isLoading}
+            />
+            <input
+              type="text"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Type your message..."
+              className="w-full p-2 border rounded"
+              disabled={isLoading}
+            />
+            <button 
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
+              disabled={isLoading || !nickname}
+            >
+              {isLoading ? 'Sending...' : 'Send'}
+            </button>
+          </form>
+```
 </DemoReference>
 
 <DemoReference file="app/page.tsx" language="tsx" lines="18-40">
 
 This form submission is handled by `handleSubmit`, which parses the form and posts the data to the `/api/chat` endpoint.
+
+```tsx
+const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt, nickname }),
+      });
+
+      const data = await res.json();
+      setResponse(data.response);
+    } catch (error) {
+      console.error('Error:', error);
+      setResponse('Sorry, there was an error processing your request.');
+    } finally {
+      setIsLoading(false);
+      setPrompt('');
+    }
+  };
+```
+
 </DemoReference>
 
 ## Capturing usage data

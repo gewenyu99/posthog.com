@@ -33,7 +33,7 @@ export default function DemoReference({ file, children, lines }: DemoReferencePr
 
     return (
         <div
-            className={`my-8 group border ${
+            className={`py-4 group border ${
                 selectedReferenceId === id
                     ? 'bg-gray-50 dark:bg-gray-900 border-light dark:border-dark border-l-4 border-l-light dark:border-l-dark rounded-md pl-3'
                     : 'border-transparent'

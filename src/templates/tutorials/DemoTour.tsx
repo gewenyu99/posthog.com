@@ -28,6 +28,8 @@ import AskMax from 'components/AskMax'
 import ImageSlider from 'components/ImageSlider'
 import { SelectedProvider } from 'components/DemoTour/DemoContext'
 import { DemoCode } from 'components/DemoTour/DemoCode'
+import Callout from 'components/Docs/CalloutBox'
+import { parseCodeFile } from 'components/DemoTour/LoadDemoCode'
 
 const A = (props) => <Link {...props} className="text-red hover:text-red font-semibold" />
 
@@ -125,14 +127,7 @@ export default function DemoTourTemplate({ data, pageContext, location, mobile =
     const category = postData?.parent?.category
 
     // Get the markdown file name from the path
-    const markdownFileName = filePath?.split('/').pop()?.replace('.mdx', '') || ''
-    const processedCodeFiles =
-        codeExamples?.map((file) => ({
-            name: file.name,
-            path: file,
-            tabName: file.replace(`code-examples/${markdownFileName}/`, ''),
-            extension: file.split('.').pop(),
-        })) || []
+    const processedCodeFiles = codeExamples?.map(parseCodeFile) || []
 
     const components = {
         h1: (props) => Heading({ as: 'h1', ...props }),
@@ -157,6 +152,7 @@ export default function DemoTourTemplate({ data, pageContext, location, mobile =
         BuiltBy,
         TeamMember,
         ImageSlider,
+        Callout,
         ...shortcodes,
     }
     const { tableOfContents, askMax } = pageContext
@@ -234,7 +230,7 @@ export default function DemoTourTemplate({ data, pageContext, location, mobile =
                                 date={date}
                                 tags={tags}
                             />
-                            <div className="xl:hidden">
+                            <div className="">
                                 <ContributorsSmall contributors={contributors} />
                             </div>
 

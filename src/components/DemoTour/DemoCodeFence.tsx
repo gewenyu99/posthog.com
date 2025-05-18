@@ -3,27 +3,18 @@ import Highlight, { defaultProps, Language } from 'prism-react-renderer'
 import { darkTheme, lightTheme } from 'components/CodeBlock/theme'
 import { useValues } from 'kea'
 import { layoutLogic } from 'logic/layoutLogic'
-import { AnimatePresence, motion } from 'framer-motion'
 import { SelectedContext } from './DemoContext'
 
 interface DemoCodeFenceProps {
     language: string
     children: string
     showLineNumbers?: boolean
+    file?: string
 }
 
-export const DemoCodeFence = ({ language, children, showLineNumbers = false }: DemoCodeFenceProps) => {
+export const DemoCodeFence = ({ language, children, showLineNumbers = false, file }: DemoCodeFenceProps) => {
     const { websiteTheme } = useValues(layoutLogic)
-    const [tooltipVisible, setTooltipVisible] = useState(false)
-    const { selectedLines } = useContext(SelectedContext)
-
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(children.trim())
-        setTooltipVisible(true)
-        setTimeout(() => {
-            setTooltipVisible(false)
-        }, 1000)
-    }
+    const { selectedLines, selectedFile } = useContext(SelectedContext)
 
     return (
         <div className="code-block relative mt-2 mb-4 border-t border-light dark:border-dark rounded-none h-full flex flex-col">
@@ -55,7 +46,8 @@ export const DemoCodeFence = ({ language, children, showLineNumbers = false }: D
                             >
                                 {tokens.map((line, i) => {
                                     const { className, ...props } = getLineProps({ line, key: i })
-                                    const isHighlighted = selectedLines.includes(i + 1)
+                                    const isHighlighted = selectedLines.includes(i + 1) && file === selectedFile
+
                                     return (
                                         <div
                                             key={i}

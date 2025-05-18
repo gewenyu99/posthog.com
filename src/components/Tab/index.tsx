@@ -9,7 +9,8 @@ export const Tab: React.FC & {
     Panels: typeof HeadlessTab.Panels
     Panel: typeof HeadlessTab.Panel
     count?: string
-} = ({ count, children }) => {
+    onClick?: () => void
+} = ({ count, children, onClick }) => {
     return (
         <HeadlessTab
             className={({ selected }) =>
@@ -20,6 +21,7 @@ export const Tab: React.FC & {
                     'px-2 py-1 text-sm font-semibold whitespace-nowrap rounded relative hover:scale-[1.01] active:scale-[.99] group'
                 )
             }
+            onClick={onClick}
         >
             {children}
             {count && (

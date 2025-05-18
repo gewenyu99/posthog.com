@@ -58,7 +58,7 @@ export const LayoutProvider = ({ children, ...other }: IProps) => {
     const [enterpriseMode, setEnterpriseMode] = useState(false)
     const [theoMode, setTheoMode] = useState(false)
     const [post, setPost] = useState<boolean>(false)
-    const [explainerTutorial, setExplainerTutorial] = useState<boolean>(false)
+    const [demoTour, setDemoTour] = useState<boolean>(false)
     const parent =
         other.parent ??
         menu.find(({ children, url }) => {
@@ -191,8 +191,8 @@ export const LayoutProvider = ({ children, ...other }: IProps) => {
                 post,
                 hedgehogModeEnabled,
                 setHedgehogModeEnabled,
-                explainerTutorial,
-                setExplainerTutorial,
+                demoTour,
+                setDemoTour,
             }}
         >
             {children}

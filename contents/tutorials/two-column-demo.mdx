@@ -7,14 +7,14 @@ tags: ["javascript", "modules", "tutorials"]
 codeExamples: ["code-examples/two-column-demo/a.js", "code-examples/two-column-demo/b.js"]
 ---
 
-import CalloutBox from 'components/CodeReference/CodeReference'
+import DemoReference from 'components/DemoTour/DemoReference'
 
 
 # JavaScript Module Patterns
 
 Let's explore different ways to export and import JavaScript modules using practical examples.
 
-<CodeReference
+<DemoReference
   file="code-examples/two-column-demo/a.js"
   description="Default export of a PostHog client class"
   language="javascript"
@@ -23,20 +23,20 @@ Let's explore different ways to export and import JavaScript modules using pract
 ## Default Exports
 
 The most common pattern is using default exports for your main module functionality. The `PostHogClient` class is exported as the default export, making it the primary export of the module. This is commonly used for the main functionality of a module.
-</CodeReference>
+</DemoReference>
 
 ## Importing Default Exports
 
-<CodeReference
+<DemoReference
   file="code-examples/two-column-demo/b.js"
   description="Importing the default export"
   language="javascript"
   lines="1-2">
 
 To use a default export, we use a simple import statement without curly braces. The name can be anything we choose, though it's common to use the same name as the export.
-</CodeReference>
+</DemoReference>
 
-<CodeReference
+<DemoReference
   file="code-examples/two-column-demo/a.js"
   description="Named exports for constants and functions"
   language="javascript"
@@ -46,9 +46,9 @@ To use a default export, we use a simple import statement without curly braces. 
 ## Named Exports
 
 Named exports allow us to export multiple values from a module. Here we export constants and utility functions that can be imported individually. This is useful for exporting multiple related pieces of functionality.
-</CodeReference>
+</DemoReference>
 
-<CodeReference
+<DemoReference
   file="code-examples/two-column-demo/b.js"
   description="Importing named exports"
   language="javascript"
@@ -58,9 +58,9 @@ Named exports allow us to export multiple values from a module. Here we export c
 ## Importing Named Exports
 
 Named exports are imported using curly braces, allowing us to select exactly which exports we need. We can also rename them during import using the `as` keyword.
-</CodeReference>
+</DemoReference>
 
-<CodeReference
+<DemoReference
   file="code-examples/two-column-demo/a.js"
   description="Export with renaming and computed properties"
   language="javascript"
@@ -69,9 +69,9 @@ Named exports are imported using curly braces, allowing us to select exactly whi
 ## Advanced Export Patterns
 
 JavaScript modules support more advanced patterns like renaming exports and using computed properties. These patterns provide flexibility in how we structure and expose our module's functionality.
-</CodeReference>
+</DemoReference>
 
-<CodeReference
+<DemoReference
   file="code-examples/two-column-demo/b.js"
   description="Using namespace imports and dynamic imports"
   language="javascript"
@@ -80,9 +80,9 @@ JavaScript modules support more advanced patterns like renaming exports and usin
 ## Advanced Import Patterns
 
 We can import everything as a namespace using `* as`, or use dynamic imports for code splitting. Dynamic imports return a promise, allowing us to load modules on demand.
-</CodeReference>
+</DemoReference>
 
-<CodeReference
+<DemoReference
   file="code-examples/two-column-demo/b.js"
   description="Putting it all together"
   language="javascript"
@@ -91,4 +91,4 @@ We can import everything as a namespace using `* as`, or use dynamic imports for
 ## Practical Usage
 
 Here's how all these patterns work together in practice. We can mix and match different import styles based on our needs, from simple default imports to dynamic loading of modules.
-</CodeReference>
+</DemoReference>

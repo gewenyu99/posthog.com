@@ -26,6 +26,7 @@ export const createPages: GatsbyNode['createPages'] = async ({ actions: { create
     // Tutorials
     const TutorialsTemplate = path.resolve(`src/templates/tutorials/index.tsx`)
     const TutorialTemplate = path.resolve(`src/templates/tutorials/Tutorial.tsx`)
+    const DemoTourTemplate = path.resolve(`src/templates/tutorials/DemoTour.tsx`)
     const TutorialsCategoryTemplate = path.resolve(`src/templates/tutorials/TutorialsCategory.tsx`)
 
     // Docs
@@ -105,6 +106,9 @@ export const createPages: GatsbyNode['createPages'] = async ({ actions: { create
                     }
                     fields {
                         slug
+                    }
+                    frontmatter {
+                        twoColumn
                     }
                 }
                 categories: group(field: frontmatter___tags) {
@@ -559,10 +563,11 @@ export const createPages: GatsbyNode['createPages'] = async ({ actions: { create
 
     result.data.tutorials.nodes.forEach((node) => {
         const { slug } = node.fields
+        const { twoColumn } = node.frontmatter
         const tableOfContents = node.headings && formatToc(node.headings)
         createPage({
             path: replacePath(slug),
-            component: BlogPostTemplate,
+            component: twoColumn ? DemoTourTemplate : BlogPostTemplate,
             context: {
                 id: node.id,
                 tableOfContents,

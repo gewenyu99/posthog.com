@@ -26,6 +26,8 @@ export const PostProvider: React.FC<ProviderProps> = ({
     },
     children,
 }) => {
+    const { activeInternalMenu, fullWidthContent } = useLayoutData()
+
     const dynamicMenus = useMemo(
         () => ({
             'data-pipeline-destinations': useDataPipelinesNav({ type: 'destination' }),
@@ -33,7 +35,6 @@ export const PostProvider: React.FC<ProviderProps> = ({
         }),
         []
     )
-    const { activeInternalMenu, fullWidthContent } = useLayoutData()
 
     const menu = useMemo(() => {
         const menu = other.menu || activeInternalMenu?.children
